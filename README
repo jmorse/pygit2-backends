@@ -1,0 +1,8 @@
+A package for supplying custom backends for libgit2 for use with the pygit2
+package. Given a backend configuration, will create a pygit2 repository that
+accesses that database.
+
+There is no support for full emulation of "normal" git repos, for example the
+storage of configuration or features such as hooks. Such support is unlikely
+to ever occur, as the aim of custom backends it to provide storage engines for
+the data in git rather than fully emulating git itself.
