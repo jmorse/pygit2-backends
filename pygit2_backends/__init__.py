@@ -1,1 +1,1 @@
-# La di da
+from .repository import MysqlRepository
