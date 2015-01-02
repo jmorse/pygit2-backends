@@ -14,7 +14,7 @@ setup(name="pygit2_backends",
         license="GPL2 with linking exception",
         packages=['pygit2_backends'],
         ext_modules=[Extension('_pygit2_backends',
-            ['backends/mysql/mysql.c'],
+            ['src/pygit2_backends.c', 'backends/mysql/mysql.c'],
             include_dirs=['/usr/include/mysql'],
             libraries=['git2', 'mysqlclient'])],
         )
