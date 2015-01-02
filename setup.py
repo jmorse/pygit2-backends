@@ -1,4 +1,4 @@
-from distutils.core import setup
+from distutils.core import setup, Extension
 import codecs
 
 with codecs.open('README', 'r', 'utf-8') as readme:
@@ -11,4 +11,8 @@ setup(name="pygit2-backends",
         author_email="jmorse+pygit2backends@studentrobotics.org",
         description="Custom backends for use with pylibgit2",
         long_description=long_description,
-        license="GPL2 with linking exception")
+        license="GPL2 with linking exception",
+        #packages=['pygit2-backends'],
+        ext_modules=[Extension('_pygit2-backends',
+            ['backends/mysql/mysql.c'])],
+        )
