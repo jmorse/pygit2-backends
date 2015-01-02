@@ -1,4 +1,15 @@
 #include <Python.h>
+#include <git2.h>
+#include <git2/odb_backend.h>
+
+/* Declare other symbols that are going to be linked into this module. In an
+ * ideal world the backends repo would export these via a header, that can be
+ * worked towards */
+
+int git_odb_backend_mysql(git_odb_backend **backend_out, const char *mysql_host,
+         const char *mysql_user, const char *mysql_passwd, const char *mysql_db,
+         unsigned int mysql_port, const char *mysql_unix_socket,
+	 unsigned long mysql_client_flag);
 
 PyMethodDef module_methods[] = {
   {NULL}
