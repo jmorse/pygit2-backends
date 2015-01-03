@@ -17,12 +17,16 @@ int git_odb_backend_mysql_create(const char *mysql_host,
          unsigned int mysql_port, const char *mysql_unix_socket,
 	 unsigned long mysql_client_flag);
 
+void git_odb_backend_mysql_free(git_odb_backend *backend);
+
 PyObject *
 open_mysql_backend(PyObject *self, PyObject *args)
 {
   const char *host, *user, *passwd, *sql_db, *unix_socket;
-  git_odb_backend *backend;
-  int portno, ret;
+  git_odb_backend *backend = NULL;
+  git_odb *odb = NULL;
+  git_repository *repository = NULL;
+  int portno, ret = GIT_OK;
 
   if (!PyArg_ParseTuple(args, "ssssiz", &host, &user, &passwd, &sql_db,
 			  &portno, &unix_socket))
@@ -42,10 +46,33 @@ open_mysql_backend(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  /* On success, return a PyCapsule containing the created backend for the
-   * moment. TODO, in the future pump this into a repository structure.
+  /* We have successfully created a custom backend. Now, create an odb around
+   * it, and then wrap it in a repository. */
+  ret = git_odb_new(&odb);
+  if (ret != GIT_OK)
+    goto cleanup;
+
+  ret = git_odb_add_backend(odb, backend, 0);
+  if (ret != GIT_OK)
+    goto cleanup;
+
+  ret = git_repository_wrap_odb(&repository, odb);
+  if (ret != GIT_OK)
+    goto cleanup;
+
+  /* On success, return a PyCapsule containing the created repo.
    * No destructor, manual deallocation occurs */
-  return PyCapsule_New(backend, "", NULL);
+  return PyCapsule_New(repository, "", NULL);
+
+cleanup:
+  if (odb)
+    git_odb_free(odb); /* This frees the backend too */
+  else if (backend)
+    git_odb_backend_mysql_free(backend);
+
+  PyErr_Format(PyExc_Exception,
+		  "Git error %d during construction of git repo", ret);
+  return NULL;
 }
 
 PyObject *
