@@ -29,7 +29,7 @@ create_mysql_backend(PyObject *self, PyObject *args)
     /* An error occurred -- XXX however there's currently no facility for
      * identifying what error that is and telling the user about it, which is
      * poor. For now, just raise a generic error */
-    PyErr_Format(self, "Failed to connect to mysql server");
+    PyErr_Format(PyExc_Exception, "Failed to connect to mysql server");
     return NULL;
   }
 
