@@ -6,7 +6,13 @@
  * ideal world the backends repo would export these via a header, that can be
  * worked towards */
 
-int git_odb_backend_mysql(git_odb_backend **backend_out, const char *mysql_host,
+int git_odb_backend_mysql_open(git_odb_backend **backend_out,
+         const char *mysql_host,
+         const char *mysql_user, const char *mysql_passwd, const char *mysql_db,
+         unsigned int mysql_port, const char *mysql_unix_socket,
+	 unsigned long mysql_client_flag);
+
+int git_odb_backend_mysql_create(const char *mysql_host,
          const char *mysql_user, const char *mysql_passwd, const char *mysql_db,
          unsigned int mysql_port, const char *mysql_unix_socket,
 	 unsigned long mysql_client_flag);
@@ -23,7 +29,7 @@ create_mysql_backend(PyObject *self, PyObject *args)
     return NULL;
 
   /* XXX -- allow for connection options such as compression and SSL */
-  ret = git_odb_backend_mysql(&backend, host, user, passwd, sql_db, portno,
+  ret = git_odb_backend_mysql_open(&backend, host, user, passwd, sql_db, portno,
 		  unix_socket, 0);
   if (ret < 0) {
     /* An error occurred -- XXX however there's currently no facility for
