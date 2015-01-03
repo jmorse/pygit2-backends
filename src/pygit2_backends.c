@@ -24,7 +24,7 @@ open_mysql_backend(PyObject *self, PyObject *args)
   git_odb_backend *backend;
   int portno, ret;
 
-  if (!PyArg_ParseTuple(args, "ssssis", &host, &user, &passwd, &sql_db,
+  if (!PyArg_ParseTuple(args, "ssssiz", &host, &user, &passwd, &sql_db,
 			  &portno, &unix_socket))
     return NULL;
 
@@ -54,7 +54,7 @@ create_mysql_backend(PyObject *self, PyObject *args)
   const char *host, *user, *passwd, *sql_db, *unix_socket;
   int portno, ret;
 
-  if (!PyArg_ParseTuple(args, "ssssis", &host, &user, &passwd, &sql_db,
+  if (!PyArg_ParseTuple(args, "ssssiz", &host, &user, &passwd, &sql_db,
 			  &portno, &unix_socket))
     return NULL;
 
