@@ -31,7 +31,10 @@ open_mysql_backend(PyObject *self, PyObject *args)
   /* XXX -- allow for connection options such as compression and SSL */
   ret = git_odb_backend_mysql_open(&backend, host, user, passwd, sql_db, portno,
 		  unix_socket, 0);
-  if (ret < 0) {
+  if (ret == GIT_ENOTFOUND) {
+    PyErr_Format(PyExc_Exception, "No git db found in specified database");
+    return NULL;
+  } else if (ret < 0) {
     /* An error occurred -- XXX however there's currently no facility for
      * identifying what error that is and telling the user about it, which is
      * poor. For now, just raise a generic error */
