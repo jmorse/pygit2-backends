@@ -18,7 +18,7 @@ int git_odb_backend_mysql_create(const char *mysql_host,
 	 unsigned long mysql_client_flag);
 
 PyObject *
-create_mysql_backend(PyObject *self, PyObject *args)
+open_mysql_backend(PyObject *self, PyObject *args)
 {
   const char *host, *user, *passwd, *sql_db, *unix_socket;
   git_odb_backend *backend;
@@ -45,7 +45,32 @@ create_mysql_backend(PyObject *self, PyObject *args)
   return PyCapsule_New(backend, "", NULL);
 }
 
+PyObject *
+create_mysql_backend(PyObject *self, PyObject *args)
+{
+  const char *host, *user, *passwd, *sql_db, *unix_socket;
+  int portno, ret;
+
+  if (!PyArg_ParseTuple(args, "ssssis", &host, &user, &passwd, &sql_db,
+			  &portno, &unix_socket))
+    return NULL;
+
+  /* XXX -- allow for connection options such as compression and SSL */
+  ret = git_odb_backend_mysql_create(host, user, passwd, sql_db, portno,
+                                     unix_socket, 0);
+  if (ret < 0) {
+    /* An error occurred -- XXX however there's currently no facility for
+     * identifying what error that is and telling the user about it, which is
+     * poor. For now, just raise a generic error */
+    PyErr_Format(PyExc_Exception, "Failed to create git db");
+    return NULL;
+  }
+
+  Py_RETURN_NONE;
+}
+
 PyMethodDef module_methods[] = {
+  {"open_mysql_backend", open_mysql_backend, METH_VARARGS, NULL},
   {"create_mysql_backend", create_mysql_backend, METH_VARARGS, NULL},
   {NULL}
 };
