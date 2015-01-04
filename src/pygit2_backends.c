@@ -1,12 +1,14 @@
 #include <Python.h>
 #include <git2.h>
 #include <git2/odb_backend.h>
+#include <git2/sys/refdb_backend.h>
 
 /* Declare other symbols that are going to be linked into this module. In an
  * ideal world the backends repo would export these via a header, that can be
  * worked towards */
 
-int git_odb_backend_mysql_open(git_odb_backend **backend_out,
+int git_odb_backend_mysql_open(git_odb_backend **odb_backend_out,
+         git_refdb_backend **refdb_backend_out,
          const char *mysql_host,
          const char *mysql_user, const char *mysql_passwd, const char *mysql_db,
          unsigned int mysql_port, const char *mysql_unix_socket,
@@ -23,7 +25,8 @@ PyObject *
 open_mysql_backend(PyObject *self, PyObject *args)
 {
   const char *host, *user, *passwd, *sql_db, *unix_socket;
-  git_odb_backend *backend = NULL;
+  git_odb_backend *odb_backend = NULL;
+  git_refdb_backend *refdb_backend = NULL;
   git_odb *odb = NULL;
   git_repository *repository = NULL;
   int portno, ret = GIT_OK;
@@ -33,8 +36,8 @@ open_mysql_backend(PyObject *self, PyObject *args)
     return NULL;
 
   /* XXX -- allow for connection options such as compression and SSL */
-  ret = git_odb_backend_mysql_open(&backend, host, user, passwd, sql_db, portno,
-		  unix_socket, 0);
+  ret = git_odb_backend_mysql_open(&odb_backend, &refdb_backend, host, user,
+                passwd, sql_db, portno, unix_socket, 0);
   if (ret == GIT_ENOTFOUND) {
     PyErr_Format(PyExc_Exception, "No git db found in specified database");
     return NULL;
@@ -52,7 +55,7 @@ open_mysql_backend(PyObject *self, PyObject *args)
   if (ret != GIT_OK)
     goto cleanup;
 
-  ret = git_odb_add_backend(odb, backend, 0);
+  ret = git_odb_add_backend(odb, odb_backend, 0);
   if (ret != GIT_OK)
     goto cleanup;
 
@@ -67,8 +70,8 @@ open_mysql_backend(PyObject *self, PyObject *args)
 cleanup:
   if (odb)
     git_odb_free(odb); /* This frees the backend too */
-  else if (backend)
-    git_odb_backend_mysql_free(backend);
+  else if (odb_backend)
+    git_odb_backend_mysql_free(odb_backend);
 
   PyErr_Format(PyExc_Exception,
 		  "Git error %d during construction of git repo", ret);
