@@ -1,7 +1,9 @@
 #include <Python.h>
 #include <git2.h>
 #include <git2/odb_backend.h>
+#include <git2/refdb.h>
 #include <git2/sys/refdb_backend.h>
+#include <git2/sys/repository.h>
 
 /* Declare other symbols that are going to be linked into this module. In an
  * ideal world the backends repo would export these via a header, that can be
@@ -20,6 +22,7 @@ int git_odb_backend_mysql_create(const char *mysql_host,
 	 unsigned long mysql_client_flag);
 
 void git_odb_backend_mysql_free(git_odb_backend *backend);
+void git_refdb_backend_mysql_free(git_refdb_backend *backend);
 
 PyObject *
 open_mysql_backend(PyObject *self, PyObject *args)
@@ -28,6 +31,7 @@ open_mysql_backend(PyObject *self, PyObject *args)
   git_odb_backend *odb_backend = NULL;
   git_refdb_backend *refdb_backend = NULL;
   git_odb *odb = NULL;
+  git_refdb *refdb = NULL;
   git_repository *repository = NULL;
   int portno, ret = GIT_OK;
 
@@ -63,12 +67,32 @@ open_mysql_backend(PyObject *self, PyObject *args)
   if (ret != GIT_OK)
     goto cleanup;
 
+  /* Create a new reference database obj, add our custom backend, shoehorn into
+   * repository */
+  ret = git_refdb_new(&refdb, repository);
+  if (ret != GIT_OK)
+    goto cleanup;
+
+  ret = git_refdb_set_backend(refdb, refdb_backend);
+  if (ret != GIT_OK)
+    goto cleanup;
+
+  /* Can't fail */
+  git_repository_set_refdb(repository, refdb);
+
   /* On success, return a PyCapsule containing the created repo.
    * No destructor, manual deallocation occurs */
   return PyCapsule_New(repository, "", NULL);
 
 cleanup:
-  if (odb)
+  if (refdb != NULL)
+    git_refdb_free(refdb);
+  else if (refdb_backend)
+    git_refdb_backend_mysql_free(refdb_backend);
+
+  if (repository)
+    git_repository_free(repository);
+  else if (odb)
     git_odb_free(odb); /* This frees the backend too */
   else if (odb_backend)
     git_odb_backend_mysql_free(odb_backend);
