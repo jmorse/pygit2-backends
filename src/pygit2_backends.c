@@ -80,6 +80,11 @@ open_mysql_backend(PyObject *self, PyObject *args)
   /* Can't fail */
   git_repository_set_refdb(repository, refdb);
 
+  /* Decrease reference count on both refdb and odb backends -- they'll be
+   * kept alive, but only by one reference, held by the repository */
+  git_refdb_free(refdb);
+  git_odb_free(odb);
+
   /* On success, return a PyCapsule containing the created repo.
    * No destructor, manual deallocation occurs */
   return PyCapsule_New(repository, "", NULL);
