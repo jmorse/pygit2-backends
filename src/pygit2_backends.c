@@ -90,17 +90,21 @@ open_mysql_backend(PyObject *self, PyObject *args)
   return PyCapsule_New(repository, "", NULL);
 
 cleanup:
+  /* free refdb and odb if created -- if not, but the backends are, then
+   * manually dispose of them. If the repository is created then free that
+   * too. */
   if (refdb != NULL)
     git_refdb_free(refdb);
   else if (refdb_backend)
     git_refdb_backend_mysql_free(refdb_backend);
 
-  if (repository)
-    git_repository_free(repository);
   else if (odb)
     git_odb_free(odb); /* This frees the backend too */
   else if (odb_backend)
     git_odb_backend_mysql_free(odb_backend);
+
+  if (repository)
+    git_repository_free(repository);
 
   PyErr_Format(PyExc_Exception,
 		  "Git error %d during construction of git repo", ret);
