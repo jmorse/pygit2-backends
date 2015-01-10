@@ -6,7 +6,9 @@ import pygit2_backends
 import _pygit2_backends
 
 # Starting assumption: you have an empty database and a user that can create
-# tables and write/read to them. Fill in the configuration below as appropriate
+# tables and write/read to them. Fill in the configuration below as appropriate.
+# You must also have my patch to pygit2 (6edb77f5) installed for repo creation
+# to work.
 
 mysql_hostname = "localhost"
 mysql_username = "root"
