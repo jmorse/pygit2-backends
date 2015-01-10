@@ -5,7 +5,7 @@ import pygit2
 import pygit2_backends
 import _pygit2_backends
 
-# Starting assumption: you have an empty database and a user that can create
+# Starting assumption: you have an _empty_ database and a user that can create
 # tables and write/read to them. Fill in the configuration below as appropriate.
 # You must also have my patch to pygit2 (6edb77f5) installed for repo creation
 # to work.
@@ -22,7 +22,7 @@ mysql_unix_socket = None
 _pygit2_backends.create_mysql_backend(mysql_hostname, mysql_username, mysql_password, mysql_dbname, mysql_portno, mysql_unix_socket)
 print("Created mysql backend database");
 
-# Attempt to open the db we just connected, into a pygit2 repostiory object
+# Attempt to open the db we just created, into a pygit2 repository object
 
 repo = pygit2_backends.MysqlRepository(mysql_hostname, mysql_username, mysql_password, mysql_dbname, mysql_portno, mysql_unix_socket)
 print("Opened mysql git repository");
