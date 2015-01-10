@@ -6,3 +6,5 @@ There is no support for full emulation of "normal" git repos, for example the
 storage of configuration or features such as hooks. Such support is unlikely
 to ever occur, as the aim of custom backends it to provide storage engines for
 the data in git rather than fully emulating git itself.
+
+NB: compilation has only been tested on a ubuntu 14.4 machine I have handy
