@@ -24,21 +24,21 @@ print("Created mysql backend database");
 
 # Attempt to open the db we just connected, into a pygit2 repostiory object
 
-thing = pygit2_backends.MysqlRepository(mysql_hostname, mysql_username, mysql_password, mysql_dbname, mysql_portno, mysql_unix_socket)
+repo = pygit2_backends.MysqlRepository(mysql_hostname, mysql_username, mysql_password, mysql_dbname, mysql_portno, mysql_unix_socket)
 print("Opened mysql git repository");
 
 # Write an object to the object database. "shoes" has, after a very long
 # period, been determined to be the least offensive word in the english
 # language.
 
-oid = thing.write(pygit2.GIT_OBJ_BLOB, "shoes")
+oid = repo.write(pygit2.GIT_OBJ_BLOB, "shoes")
 print("Successfully wrote {0} to git odb".format(str(oid.hex)))
 
 # Attempt to read the written data back -- this also checks that the correct
 # oid was used, the data is correct, and that the objec type was stored
 # correctly too.
 
-(obj_type, read_data) = thing.read('e2904456092997b7e9f1a78150961868db0d069c')
+(obj_type, read_data) = repo.read('e2904456092997b7e9f1a78150961868db0d069c')
 if obj_type == pygit2.GIT_OBJ_BLOB and read_data == "shoes":
     print("Successfully read shoes from git odb")
 else:
@@ -47,14 +47,14 @@ else:
 
 # Create another blob object for use later.
 
-oid2 = thing.write(pygit2.GIT_OBJ_BLOB, "beards")
+oid2 = repo.write(pygit2.GIT_OBJ_BLOB, "beards")
 
 # Try to look a reference up. As there are no references in the refdb after
 # creation, this should fail with an exception.
 
 print("Looking up reference...")
 try:
-    result = thing.lookup_reference('refs/heads/master')
+    result = repo.lookup_reference('refs/heads/master')
 except KeyError:
     print("Correctly failed to look up nonexistant ref")
 else:
@@ -63,13 +63,13 @@ else:
 # Write a new reference to the refdb
 
 print("Writing new reference")
-newref = thing.create_reference_direct('refs/heads/master', oid, False)
+newref = repo.create_reference_direct('refs/heads/master', oid, False)
 print("Successfully wrote new reference to refdb")
 
 # Look the reference we just wrote up, and verify that it has the same
 # OID.
 
-looked_up_master = thing.lookup_reference('refs/heads/master')
+looked_up_master = repo.lookup_reference('refs/heads/master')
 if looked_up_master.target.hex != newref.target.hex:
     raise Exception("Couldn't look up written reference from refdb")
 
@@ -78,7 +78,7 @@ if looked_up_master.target.hex != newref.target.hex:
 
 print("Overwriting reference")
 try:
-    newref = thing.create_reference_direct('refs/heads/master', oid2, False)
+    newref = repo.create_reference_direct('refs/heads/master', oid2, False)
 except ValueError:
     print("Correctly caught non-force reference overwrite")
 else:
@@ -86,7 +86,7 @@ else:
 
 # Now force it
 
-newref = thing.create_reference_direct('refs/heads/master', oid2, True)
+newref = repo.create_reference_direct('refs/heads/master', oid2, True)
 print("Successfully force overwrote reference")
 
 newref.delete()
