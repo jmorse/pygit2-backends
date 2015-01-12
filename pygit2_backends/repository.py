@@ -3,7 +3,7 @@ from pygit2 import Repository as PyGit2Repo
 import _pygit2_backends
 from _pygit2_backends import open_mysql_backend, create_mysql_backend
 
-supported_repo_attrs = ['TreeBuilder', 'config', 'create_blob', 'create_blob_fromdisk', 'create_blob_fromworkdir', 'create_branch', 'create_commit', 'create_reference', 'create_reference_direct', 'create_reference_symbolic', 'create_tag', 'get', 'git_object_lookup_prefix', 'is_empty', 'listall_branches', 'listall_references', 'lookup_branch', 'lookup_reference', 'merge_base', 'read', 'revparse_single', 'walk', 'write']
+supported_repo_attrs = ['TreeBuilder', 'config', 'create_blob', 'create_blob_fromdisk', 'create_blob_fromworkdir', 'create_branch', 'create_commit', 'create_reference', 'create_reference_direct', 'create_reference_symbolic', 'create_tag', 'get', 'git_object_lookup_prefix', 'is_empty', 'listall_branches', 'listall_references', 'lookup_branch', 'lookup_reference', 'merge_base', 'read', 'revparse_single', 'walk', 'write', 'create_remote', 'match_reference_glob']
 
 class MysqlRepository(PyGit2Repo):
     # XXX XXX XXX dev signature, think some actual thoughts before publishing
